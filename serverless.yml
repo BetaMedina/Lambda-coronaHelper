@@ -1,0 +1,51 @@
+service: corona-help
+
+frameworkVersion: "2"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: us-east-1
+  environment:
+    tableName: ${self:custom.tableName}
+    bucketName: ${self:custom.bucketName}
+
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "dynamodb:*"
+        - "s3:*"
+      Resource: "*"
+
+custom:
+  tableName: "CoronaTable"
+  bucketName: "bucketcorona-08112020"
+
+plugins:
+  - serverless-offline
+
+functions:
+  hello:
+    handler: lambdas/main/factory/presentation/entry/mainFactory.main
+    events:
+      - schedule: cron(30 9 ? * * *)
+
+resources:
+  Resources:
+    coronaDatabase:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.tableName}
+        AttributeDefinitions:
+          - AttributeName: ID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: ID
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    uploadedFileBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.bucketName}
