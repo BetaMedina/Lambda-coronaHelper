@@ -14,7 +14,7 @@ class Main {
       const bufferXlsx = await this.createRows.generateXlsx(coronaInfo);
 
       await this.s3.sendToS3(bufferXlsx);
-      return response._200({ message: "Rows has been created with success" });
+      return response._200({ message: "xlsx has been created with success" });
     } catch (err) {
       return response._500({ message: "Internal server error" });
     }
